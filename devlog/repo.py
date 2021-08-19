@@ -70,7 +70,7 @@ class GitRepo:
         today = date.today()
         datefmt = today.strftime(self.DATE_FORMAT)
         file = Path(self.path, datefmt + ".md")
-        editor.edit(file, datefmt, self._username())
+        editor.edit(file, date=datefmt, author=self._username())
 
         self._git("add", str(file))
 

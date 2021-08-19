@@ -40,15 +40,14 @@ class Editor:
         if not shutil.which(self.cmd):
             raise FileNotFoundError(self.cmd)
 
-    def edit(self, file, date, author):
+    def edit(self, file, **kwargs):
         """
         Edit file with editor.
 
         :param file: Pathlib-based file path
-        :param date: Current date
-        :param author: Author's name
+        :param \**kwargs: Keyword arguments corresponding to file metadata
         """
         if not file.is_file():
-            file.write_text(DEFAULT_METADATA.format(date=date, author=author))
+            file.write_text(DEFAULT_METADATA.format(**kwargs))
 
         subprocess.run(self.cmd.split() + [str(file)], check=True)
