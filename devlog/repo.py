@@ -8,7 +8,7 @@
 .. moduleauthor:: James Reed <james@twiddlingbits.net>
 """
 
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 import subprocess
 
@@ -21,6 +21,8 @@ class GitRepo:
 
     :param path: Path to directory containing git repo
     """
+
+    DATE_FORMAT = "%Y-%m-%d"
 
     def __init__(self, path):
         self.path = Path(path, GIT_REPO).resolve()
@@ -40,15 +42,24 @@ class GitRepo:
             *args, "--dry-run", check=False, capture_output=True, text=True
         )
 
-    def _get_today(self):
-        today = date.today().strftime("%Y-%m-%d")
-        file = Path(self.path, today + ".md")
-        return file, today
-
     def _username(self):
         return self._git(
             "config", "user.name", capture_output=True, text=True
         ).stdout.rstrip()
+
+    def _check_amend(self, today):
+        ret = self._git(
+            "log",
+            "-1",
+            "--pretty=format:%B",
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if ret.returncode == 128:
+            return False
+
+        return datetime.strptime(ret.stdout.rstrip(), self.DATE_FORMAT).date() == today
 
     def edit_today(self, editor):
         """
@@ -56,8 +67,10 @@ class GitRepo:
 
         :param editor: Editor instance
         """
-        file, today = self._get_today()
-        editor.edit(file, today, self._username())
+        today = date.today()
+        datefmt = today.strftime(self.DATE_FORMAT)
+        file = Path(self.path, datefmt + ".md")
+        editor.edit(file, datefmt, self._username())
 
         self._git("add", str(file))
 
@@ -66,10 +79,9 @@ class GitRepo:
             print(ret.stdout.rstrip())
             return
 
-        cmd = ["commit", "-m", today]
+        cmd = ["commit", "-m", datefmt]
 
-        ret = self._git_dry_run("commit", "--amend")
-        if ret.returncode != 128:
+        if self._check_amend(today):
             cmd.append("--amend")
 
         self._git(*cmd)
