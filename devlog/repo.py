@@ -9,6 +9,7 @@
 """
 
 from datetime import date, datetime
+from enum import Enum, auto
 from pathlib import Path
 import subprocess
 
@@ -23,6 +24,15 @@ class GitRepo:
     """
 
     DATE_FORMAT = "%Y-%m-%d"
+
+    class CommitStatus(Enum):
+        """
+        Status of commit made after editing an entry.
+        """
+
+        NONE = auto()
+        NEW = auto()
+        AMEND = auto()
 
     def __init__(self, path):
         self.path = Path(path, GIT_REPO).resolve()
@@ -66,6 +76,7 @@ class GitRepo:
         Edit entry for current date.
 
         :param editor: Editor instance
+        :return: Commit status, one of `GitRepo.CommitStatus`
         """
         today = date.today()
         datefmt = today.strftime(self.DATE_FORMAT)
@@ -77,11 +88,15 @@ class GitRepo:
         ret = self._git_dry_run("commit")
         if ret.returncode == 1:
             print(ret.stdout.rstrip())
-            return
+            return self.CommitStatus.NONE
 
         cmd = ["commit", "-m", datefmt]
+        status = self.CommitStatus.NEW
 
         if self._check_amend(today):
             cmd.append("--amend")
+            status = self.CommitStatus.AMEND
 
         self._git(*cmd)
+
+        return status

@@ -10,6 +10,7 @@ setup(
     name="devlog",
     version="0.0.0",
     packages=["devlog"],
+    test_suite="test",
     entry_points={
         "console_scripts": [
             "devlog = devlog.__main__:main",
