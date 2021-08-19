@@ -3,7 +3,7 @@
 # pylint: disable=too-few-public-methods
 
 """
-.. module:: git
+.. module:: repo
    :synopsis: A git repo interface.
 .. moduleauthor:: James Reed <james@twiddlingbits.net>
 """

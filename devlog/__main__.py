@@ -6,7 +6,7 @@ import argparse
 import sys
 
 from devlog.editor import Editor
-from devlog.git import GitRepo
+from devlog.repo import GitRepo
 
 
 def main():
