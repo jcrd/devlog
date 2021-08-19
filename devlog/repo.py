@@ -70,6 +70,6 @@ class GitRepo:
 
         ret = self._git_dry_run("commit", "--amend")
         if ret.returncode != 128:
-            cmd.extend(["--amend", "--no-edit"])
+            cmd.append("--amend")
 
         self._git(*cmd)
