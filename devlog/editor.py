@@ -12,11 +12,11 @@ import os
 import subprocess
 import shutil
 
-DEFAULT_METADATA = """Title: {date}
-Date: {date}
-Authors: {author}
-
-Summary:
+DEFAULT_METADATA = """---
+title: {title} | {date}
+date: {date}
+author: {author}
+---
 
 """
 

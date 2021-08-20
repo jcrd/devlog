@@ -35,7 +35,9 @@ class GitRepo:
         AMEND = auto()
 
     def __init__(self, path):
-        self.path = Path(path, GIT_REPO).resolve()
+        path = Path(path).resolve()
+        self.name = path.name
+        self.path = Path(path, GIT_REPO)
 
         if not self.path.is_dir():
             self.path.mkdir()
@@ -87,7 +89,7 @@ class GitRepo:
         path.mkdir(parents=True, exist_ok=True)
 
         datefmt = today.strftime(self.DATE_FORMAT)
-        editor.edit(file, date=datefmt, author=self._username())
+        editor.edit(file, title=self.name, date=datefmt, author=self._username())
 
         self._git("add", str(file))
 
