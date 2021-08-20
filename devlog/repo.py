@@ -71,14 +71,16 @@ class GitRepo:
 
         return datetime.strptime(ret.stdout.rstrip(), self.DATE_FORMAT).date() == today
 
-    def edit_today(self, editor):
+    def edit_today(self, editor, today=None):
         """
-        Edit entry for current date.
+        Edit entry for current or specified date.
 
         :param editor: Editor instance
+        :param today: Date of entry to edit, defaults to current date
         :return: Commit status, one of `GitRepo.CommitStatus`
         """
-        today = date.today()
+        if not today:
+            today = date.today()
         datefmt = today.strftime(self.DATE_FORMAT)
         file = Path(self.path, datefmt + ".md")
         editor.edit(file, date=datefmt, author=self._username())

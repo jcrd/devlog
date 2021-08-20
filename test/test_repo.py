@@ -3,6 +3,7 @@
 # pylint: disable=missing-module-docstring,missing-function-docstring,missing-class-docstring
 # pylint: disable=too-few-public-methods
 
+from datetime import date
 import tempfile
 import unittest
 
@@ -25,11 +26,16 @@ class TestGitRepo(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             repo = GitRepo(temp)
 
-            def assert_status(text, status):
+            def assert_status(text, today, status):
                 self.editor.text = text
-                self.assertEqual(repo.edit_today(self.editor), status)
+                ret = repo.edit_today(self.editor, today=today)
+                self.assertEqual(ret, status)
 
-            assert_status("1", GitRepo.CommitStatus.NEW)
-            assert_status("1", GitRepo.CommitStatus.NONE)
-            assert_status("1 2", GitRepo.CommitStatus.AMEND)
-            assert_status("1 2 3", GitRepo.CommitStatus.AMEND)
+            yesterday = date(2021, 1, 1)
+            today = date(2021, 1, 2)
+
+            assert_status("1", yesterday, GitRepo.CommitStatus.NEW)
+            assert_status("1", today, GitRepo.CommitStatus.NEW)
+            assert_status("1", today, GitRepo.CommitStatus.NONE)
+            assert_status("1 2", today, GitRepo.CommitStatus.AMEND)
+            assert_status("1 2 3", today, GitRepo.CommitStatus.AMEND)
