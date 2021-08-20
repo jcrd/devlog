@@ -81,8 +81,12 @@ class GitRepo:
         """
         if not today:
             today = date.today()
+
+        path = Path(self.path, str(today.year), str(today.month))
+        file = Path(path, str(today.day) + ".md")
+        path.mkdir(parents=True, exist_ok=True)
+
         datefmt = today.strftime(self.DATE_FORMAT)
-        file = Path(self.path, datefmt + ".md")
         editor.edit(file, date=datefmt, author=self._username())
 
         self._git("add", str(file))
