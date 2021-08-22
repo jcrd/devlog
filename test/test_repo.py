@@ -26,6 +26,9 @@ class TestGitRepo(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             repo = GitRepo(temp, init=True)
 
+            repo._git("config", "user.email", "jones@twiddlingbits.net")
+            repo._git("config", "user.name", "Tester Jones")
+
             def assert_status(text, today, status):
                 self.editor.text = text
                 ret = repo.edit_today(self.editor, today=today)
