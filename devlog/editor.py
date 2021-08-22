@@ -25,11 +25,14 @@ class Editor:
     """
     An editor interface.
 
+    :param config: Config object
     :param cmd: Editor command. Falls back to the environment variables \
     `DEVLOG_EDITOR` or `EDITOR`, then the command "vim"
     """
 
-    def __init__(self, cmd=None):
+    def __init__(self, config, cmd=None):
+        self.config = config
+
         if cmd:
             self.cmd = cmd
         else:
@@ -40,6 +43,9 @@ class Editor:
         if not shutil.which(self.cmd):
             raise FileNotFoundError(self.cmd)
 
+    def _set_config_opt(self, kwargs, opt, value):
+        kwargs[opt] = self.config.get("options", opt, fallback=kwargs.get(opt, value))
+
     def edit(self, file, **kwargs):
         """
         Edit file with editor.
@@ -48,6 +54,7 @@ class Editor:
         :param \**kwargs: Keyword arguments corresponding to file metadata
         """
         if not file.is_file():
+            self._set_config_opt(kwargs, "title", "unknown")
             file.write_text(DEFAULT_METADATA.format(**kwargs))
 
         subprocess.run(self.cmd.split() + [str(file)], check=True)

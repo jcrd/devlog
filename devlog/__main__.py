@@ -5,6 +5,7 @@
 import argparse
 import sys
 
+from devlog.config import new_config
 from devlog.editor import Editor
 from devlog.repo import GitRepo
 
@@ -20,10 +21,14 @@ def main():
     if args.init:
         print("Initializing git repo...")
         GitRepo(args.directory, init=True)
+        print("Initializing config file...")
+        new_config(args.directory, init=True)
         sys.exit()
 
+    config = new_config(args.directory)
+
     try:
-        editor = Editor(args.editor)
+        editor = Editor(config, cmd=args.editor)
     except FileNotFoundError as error:
         sys.stderr.write("Command not found: {}".format(error.args[0]))
         sys.exit(2)
