@@ -11,10 +11,16 @@ from devlog.repo import GitRepo
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--init", action="store_true", help="Initialize repo")
     parser.add_argument("-d", "--directory", default=".", help="Path to dev directory")
     parser.add_argument("-e", "--editor", help="Editor to use")
 
     args = parser.parse_args()
+
+    if args.init:
+        print("Initializing git repo...")
+        GitRepo(args.directory, init=True)
+        sys.exit()
 
     try:
         editor = Editor(args.editor)
@@ -22,7 +28,12 @@ def main():
         sys.stderr.write("Command not found: {}".format(error.args[0]))
         sys.exit(2)
 
-    repo = GitRepo(args.directory)
+    try:
+        repo = GitRepo(args.directory)
+    except FileNotFoundError:
+        sys.stderr.write("Repo uninitialized; run `devlog --init`")
+        sys.exit(1)
+
     repo.edit_today(editor)
 
 

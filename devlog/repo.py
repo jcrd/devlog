@@ -22,6 +22,7 @@ class GitRepo:
     A git repo interface.
 
     :param path: Path to directory containing git repo
+    "param init: Initialize git repo if `True`, defaults to `False`
     """
 
     DATE_FORMAT = "%Y-%m-%d"
@@ -35,16 +36,17 @@ class GitRepo:
         NEW = auto()
         AMEND = auto()
 
-    def __init__(self, path):
+    def __init__(self, path, init=False):
         path = Path(path).resolve()
         self.name = path.name
-        self.path = Path(path, GIT_REPO)
+        self.path = Path(path, GIT_REPO).resolve(strict=not init)
 
-        if not self.path.is_dir():
-            self.path.mkdir()
-        if not Path(self.path, ".git").is_dir():
-            self._git("init", "-q")
-            self._git("checkout", "--orphan", GIT_BRANCH)
+        if init:
+            if not self.path.is_dir():
+                self.path.mkdir()
+            if not Path(self.path, ".git").is_dir():
+                self._git("init", "-q")
+                self._git("checkout", "--orphan", GIT_BRANCH)
 
     def _git(self, *args, check=True, **kwargs):
         return subprocess.run(

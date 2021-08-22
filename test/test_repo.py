@@ -24,7 +24,7 @@ class TestGitRepo(unittest.TestCase):
 
     def test_commit_status(self):
         with tempfile.TemporaryDirectory() as temp:
-            repo = GitRepo(temp)
+            repo = GitRepo(temp, init=True)
 
             def assert_status(text, today, status):
                 self.editor.text = text
