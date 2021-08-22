@@ -14,6 +14,7 @@ from pathlib import Path
 import subprocess
 
 GIT_REPO = ".devlog"
+GIT_BRANCH = "devlog"
 
 
 class GitRepo:
@@ -43,6 +44,7 @@ class GitRepo:
             self.path.mkdir()
         if not Path(self.path, ".git").is_dir():
             self._git("init", "-q")
+            self._git("checkout", "--orphan", GIT_BRANCH)
 
     def _git(self, *args, check=True, **kwargs):
         return subprocess.run(
