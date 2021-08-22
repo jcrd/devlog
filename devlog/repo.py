@@ -50,7 +50,7 @@ class GitRepo:
 
     def _git(self, *args, check=True, **kwargs):
         return subprocess.run(
-            ["git", "-C", self.path] + list(args), check=check, **kwargs
+            ["git", "-C", str(self.path)] + list(args), check=check, **kwargs
         )
 
     def _git_dry_run(self, *args):
