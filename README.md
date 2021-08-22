@@ -1,4 +1,4 @@
-# devlog
+# devlog ![test](https://github.com/jcrd/devlog/actions/workflows/test.yml/badge.svg)
 
 devlog logs your development process.
 
