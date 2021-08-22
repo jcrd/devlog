@@ -59,9 +59,14 @@ class GitRepo:
         )
 
     def _username(self):
-        return self._git(
-            "config", "user.name", capture_output=True, text=True
-        ).stdout.rstrip()
+        ret = self._git(
+            "config", "user.name", check=False, capture_output=True, text=True
+        )
+
+        if ret.returncode != 0:
+            return "unknown"
+
+        return ret.stdout.rstrip()
 
     def _check_amend(self, today):
         ret = self._git(
