@@ -10,19 +10,26 @@ from devlog.editor import Editor
 from devlog.repo import GitRepo
 
 
+def cmd_init(args):
+    print("Initializing git repo...")
+    GitRepo(args.directory, init=True)
+    print("Initializing config file...")
+    new_config(args.directory, init=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--init", action="store_true", help="Initialize repo")
     parser.add_argument("-d", "--directory", default=".", help="Path to dev directory")
     parser.add_argument("-e", "--editor", help="Editor to use")
 
+    subp = parser.add_subparsers(title="commands", dest="cmd")
+    initp = subp.add_parser("init", help="Initialize repo")
+    initp.set_defaults(cmd=cmd_init)
+
     args = parser.parse_args()
 
-    if args.init:
-        print("Initializing git repo...")
-        GitRepo(args.directory, init=True)
-        print("Initializing config file...")
-        new_config(args.directory, init=True)
+    if args.cmd:
+        args.cmd(args)
         sys.exit()
 
     config = new_config(args.directory)
@@ -36,7 +43,7 @@ def main():
     try:
         repo = GitRepo(args.directory)
     except FileNotFoundError:
-        sys.stderr.write("Repo uninitialized; run `devlog --init`")
+        sys.stderr.write("Repo uninitialized; run `devlog init`")
         sys.exit(1)
 
     repo.edit_today(editor)
