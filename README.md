@@ -5,7 +5,7 @@ devlog logs your development process.
 ## Usage
 
 ```
-usage: devlog [-h] [-d DIRECTORY] [-e EDITOR] {init} ...
+usage: devlog [-h] [-d DIRECTORY] [-e EDITOR] {init,remote,push} ...
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -15,12 +15,15 @@ optional arguments:
                         Editor to use
 
 commands:
-  {init}
+  {init,remote,push}
     init                Initialize repo
+    remote              Set remote URL
+    push                Update remote
 ```
 
 Initialize the repo with `devlog init`, then run `devlog` to edit the entry for
 the current date.
+Set a remote URL with `devlog remote <URL>`, then push with `devlog push`.
 
 ## License
 
