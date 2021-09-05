@@ -14,7 +14,7 @@ def get_repo(dir):
     try:
         repo = GitRepo(dir)
     except FileNotFoundError:
-        sys.stderr.write("Repo uninitialized; run `devlog init`")
+        sys.stderr.write("Repo uninitialized; run `devlog init`\n")
         sys.exit(1)
 
     return repo
@@ -35,7 +35,7 @@ def cmd_remote(args):
 def cmd_push(args):
     repo = get_repo(args.directory)
     if repo.push() == GitRepo.PushStatus.NO_REMOTE:
-        sys.stderr.write("No remote; run `devlog remote <URL>`")
+        sys.stderr.write("No remote; run `devlog remote <URL>`\n")
         sys.exit(1)
 
 
@@ -64,7 +64,7 @@ def main():
     try:
         editor = Editor(config, cmd=args.editor)
     except FileNotFoundError as error:
-        sys.stderr.write("Command not found: {}".format(error.args[0]))
+        sys.stderr.write("Command not found: {}\n".format(error.args[0]))
         sys.exit(2)
 
     get_repo(args.directory).edit_today(editor)
