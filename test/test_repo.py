@@ -54,3 +54,11 @@ class TestGitRepo(unittest.TestCase):
             assert_status("1", today, GitRepo.CommitStatus.NONE)
             assert_status("1 2", today, GitRepo.CommitStatus.AMEND)
             assert_status("1 2 3", today, GitRepo.CommitStatus.AMEND)
+
+    def test_push_status(self):
+        with RepoCtx() as repo:
+            ret = repo.push()
+            self.assertEqual(ret, GitRepo.PushStatus.NO_REMOTE)
+            repo.set_remote("https://github.com/jones/test.git")
+            ret = repo.push()
+            self.assertEqual(ret, GitRepo.PushStatus.FAILURE)

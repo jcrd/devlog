@@ -36,6 +36,15 @@ class GitRepo:
         NEW = auto()
         AMEND = auto()
 
+    class PushStatus(Enum):
+        """
+        Status of push command.
+        """
+
+        NO_REMOTE = auto()
+        FAILURE = auto()
+        SUCCESS = auto()
+
     def __init__(self, path, init=False):
         path = Path(path).resolve()
         self.name = path.name
@@ -82,6 +91,14 @@ class GitRepo:
 
         return datetime.strptime(ret.stdout.rstrip(), self.DATE_FORMAT).date() == today
 
+    def _check_remote(self):
+        return (
+            self._git(
+                "remote", "get-url", "origin", check=False, capture_output=True
+            ).returncode
+            != 2
+        )
+
     def edit_today(self, editor, today=None):
         """
         Edit entry for current or specified date.
@@ -117,3 +134,29 @@ class GitRepo:
         self._git(*cmd)
 
         return status
+
+    def set_remote(self, url):
+        """
+        Set remote URL.
+
+        :param url: The remote URL
+        """
+
+        self._git("remote", "add", "origin", url)
+
+    def push(self):
+        """
+        Update remote.
+
+        :return: Push status, one of `GitRepo.PushStatus`
+        """
+        if not self._check_remote():
+            return self.PushStatus.NO_REMOTE
+
+        ret = self._git_dry_run("push", "origin")
+        if ret.returncode > 0:
+            print(ret.stderr.rstrip())
+            return self.PushStatus.FAILURE
+
+        self._git("push", "origin")
+        return self.PushStatus.SUCCESS
