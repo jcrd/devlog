@@ -2,12 +2,28 @@
 
 # pylint: disable=missing-module-docstring,missing-function-docstring,missing-class-docstring
 # pylint: disable=too-few-public-methods
+# pylint: disable=protected-access
+# pylint: disable=consider-using-with
 
 from datetime import date
 import tempfile
 import unittest
 
 from devlog.repo import GitRepo
+
+
+class RepoCtx:
+    def __init__(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.repo = GitRepo(self.dir.name, init=True)
+        self.repo._git("config", "user.email", "jones@twiddlingbits.net")
+        self.repo._git("config", "user.name", "Tester Jones")
+
+    def __enter__(self):
+        return self.repo
+
+    def __exit__(self, *_):
+        self.dir.cleanup()
 
 
 class Editor:
@@ -23,11 +39,7 @@ class TestGitRepo(unittest.TestCase):
         self.editor = Editor()
 
     def test_commit_status(self):
-        with tempfile.TemporaryDirectory() as temp:
-            repo = GitRepo(temp, init=True)
-
-            repo._git("config", "user.email", "jones@twiddlingbits.net")
-            repo._git("config", "user.name", "Tester Jones")
+        with RepoCtx() as repo:
 
             def assert_status(text, today, status):
                 self.editor.text = text
