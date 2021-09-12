@@ -6,13 +6,29 @@
 .. moduleauthor:: James Reed <james@twiddlingbits.net>
 """
 
+from configparser import ConfigParser
 from pathlib import Path
-import configparser
 
 CONFIG_NAME = ".devlog.conf"
 DEFAULT_CONFIG = """# [options]
+# auto_push = true
 # title =
 """
+
+
+class Config(ConfigParser):
+    """
+    A configuration object.
+    """
+
+    @property
+    def auto_push(self):
+        """
+        The state of the auto push option.
+
+        :return: `True` if set, otherwise `False`
+        """
+        return self.get("options", "auto_push", fallback=True)
 
 
 def new_config(path, init=False):
@@ -24,7 +40,7 @@ def new_config(path, init=False):
     :return: A `ConfigParser` object
     """
     path = Path(path, CONFIG_NAME).resolve()
-    config = configparser.ConfigParser()
+    config = Config()
 
     if path.is_file():
         config.read(path)

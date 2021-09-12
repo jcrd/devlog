@@ -42,6 +42,8 @@ class GitRepo:
         """
 
         NO_REMOTE = auto()
+        INACTION = auto()
+        DRY_RUN = auto()
         FAILURE = auto()
         SUCCESS = auto()
 
@@ -77,7 +79,12 @@ class GitRepo:
 
         return ret.stdout.rstrip()
 
-    def _check_amend(self, today):
+    def last_commit_date(self):
+        """
+        Get date of last commit.
+
+        :return: Date of last commit
+        """
         ret = self._git(
             "log",
             "-1",
@@ -87,9 +94,9 @@ class GitRepo:
             text=True,
         )
         if ret.returncode == 128:
-            return False
+            return None
 
-        return datetime.strptime(ret.stdout.rstrip(), self.DATE_FORMAT).date() == today
+        return datetime.strptime(ret.stdout.rstrip(), self.DATE_FORMAT).date()
 
     def _check_remote(self):
         return (
@@ -127,7 +134,7 @@ class GitRepo:
         cmd = ["commit", "-m", datefmt]
         status = self.CommitStatus.NEW
 
-        if self._check_amend(today):
+        if self.last_commit_date() == today:
             cmd.append("--amend")
             status = self.CommitStatus.AMEND
 
@@ -144,19 +151,40 @@ class GitRepo:
 
         self._git("remote", "add", "origin", url)
 
-    def push(self):
+    def push(self, dry_run=False):
         """
         Update remote.
 
+        :param dry_run: If `True`, don't update remote, only return status
         :return: Push status, one of `GitRepo.PushStatus`
         """
         if not self._check_remote():
             return self.PushStatus.NO_REMOTE
+
+        if dry_run:
+            return self.PushStatus.DRY_RUN
 
         ret = self._git_dry_run("push", "origin")
         if ret.returncode > 0:
             print(ret.stderr.rstrip())
             return self.PushStatus.FAILURE
 
-        self._git("push", "origin")
+        if not dry_run:
+            self._git("push", "origin")
         return self.PushStatus.SUCCESS
+
+    def auto_push(self, today=None, dry_run=False):
+        """
+        Automatically update remote if the last commit date is before today.
+
+        :param today: Date to use as condition, defaults to current date
+        :param dry_run: If `True`, don't update remote, only return status
+        :return: Push status, one of `GitRepo.PushStatus`
+        """
+
+        if not today:
+            today = date.today()
+        if self.last_commit_date() < today:
+            return self.push(dry_run=dry_run)
+
+        return self.PushStatus.INACTION

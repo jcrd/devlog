@@ -60,6 +60,10 @@ def main():
         sys.exit()
 
     config = new_config(args.directory)
+    repo = get_repo(args.directory)
+
+    if config.auto_push:
+        repo.auto_push()
 
     try:
         editor = Editor(config, cmd=args.editor)
@@ -67,7 +71,7 @@ def main():
         sys.stderr.write("Command not found: {}\n".format(error.args[0]))
         sys.exit(2)
 
-    get_repo(args.directory).edit_today(editor)
+    repo.edit_today(editor)
 
 
 if __name__ == "__main__":
