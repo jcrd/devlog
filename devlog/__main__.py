@@ -10,9 +10,9 @@ from devlog.editor import Editor
 from devlog.repo import GitRepo
 
 
-def get_repo(dir):
+def get_repo(path):
     try:
-        repo = GitRepo(dir)
+        repo = GitRepo(path)
     except FileNotFoundError:
         sys.stderr.write("Repo uninitialized; run `devlog init`\n")
         sys.exit(1)
