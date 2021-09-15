@@ -50,7 +50,8 @@ class TestGitRepo(unittest.TestCase):
 
             assert_status("1", self.yesterday, GitRepo.CommitStatus.NEW)
             assert_status("1", self.today, GitRepo.CommitStatus.NEW)
-            assert_status("1", self.today, GitRepo.CommitStatus.NONE)
+            with self.assertRaises(GitRepo.CommitError):
+                repo.edit_today(self.editor, today=self.today)
             assert_status("1 2", self.today, GitRepo.CommitStatus.AMEND)
             assert_status("1 2 3", self.today, GitRepo.CommitStatus.AMEND)
 
@@ -59,8 +60,8 @@ class TestGitRepo(unittest.TestCase):
             ret = repo.push(dry_run=True)
             self.assertEqual(ret, GitRepo.PushStatus.NO_REMOTE)
             repo.set_remote("https://github.com/jones/test.git")
-            ret = repo.push()
-            self.assertEqual(ret, GitRepo.PushStatus.FAILURE)
+            with self.assertRaises(GitRepo.PushError):
+                repo.push()
 
     def test_last_commit_date(self):
         with RepoCtx() as repo:

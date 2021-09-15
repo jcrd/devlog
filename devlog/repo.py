@@ -27,12 +27,21 @@ class GitRepo:
 
     DATE_FORMAT = "%Y-%m-%d"
 
+    class CommitError(Exception):
+        """
+        An exception raised when committing fails.
+        """
+
+    class PushError(Exception):
+        """
+        An exception raised when updating remote fails.
+        """
+
     class CommitStatus(Enum):
         """
         Status of commit made after editing an entry.
         """
 
-        NONE = auto()
         NEW = auto()
         AMEND = auto()
 
@@ -44,7 +53,6 @@ class GitRepo:
         NO_REMOTE = auto()
         INACTION = auto()
         DRY_RUN = auto()
-        FAILURE = auto()
         SUCCESS = auto()
 
     def __init__(self, path, init=False):
@@ -112,6 +120,7 @@ class GitRepo:
 
         :param editor: Editor instance
         :param today: Date of entry to edit, defaults to current date
+        :raises CommitError: Raised when committing fails
         :return: Commit status, one of `GitRepo.CommitStatus`
         """
         if not today:
@@ -128,8 +137,7 @@ class GitRepo:
 
         ret = self._git_dry_run("commit")
         if ret.returncode == 1:
-            print(ret.stdout.rstrip())
-            return self.CommitStatus.NONE
+            raise self.CommitError(ret.stdout.rstrip())
 
         cmd = ["commit", "-m", datefmt]
         status = self.CommitStatus.NEW
@@ -156,6 +164,7 @@ class GitRepo:
         Update remote.
 
         :param dry_run: If `True`, don't update remote, only return status
+        :raises PushError: Raised when updating remote fails
         :return: Push status, one of `GitRepo.PushStatus`
         """
         if not self._check_remote():
@@ -166,8 +175,7 @@ class GitRepo:
 
         ret = self._git_dry_run("push", "origin")
         if ret.returncode > 0:
-            print(ret.stderr.rstrip())
-            return self.PushStatus.FAILURE
+            raise self.PushError(ret.stderr.rstrip())
 
         if not dry_run:
             self._git("push", "origin")
@@ -179,6 +187,7 @@ class GitRepo:
 
         :param today: Date to use as condition, defaults to current date
         :param dry_run: If `True`, don't update remote, only return status
+        :raises PushError: Raised when updating remote fails
         :return: Push status, one of `GitRepo.PushStatus`
         """
 

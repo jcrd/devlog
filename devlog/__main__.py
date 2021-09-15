@@ -34,8 +34,12 @@ def cmd_remote(args):
 
 def cmd_push(args):
     repo = get_repo(args.directory)
-    if repo.push() == GitRepo.PushStatus.NO_REMOTE:
-        sys.stderr.write("No remote; run `devlog remote <URL>`\n")
+    try:
+        if repo.push() == GitRepo.PushStatus.NO_REMOTE:
+            sys.stderr.write("No remote; run `devlog remote <URL>`\n")
+            sys.exit(1)
+    except GitRepo.PushError as err:
+        sys.stderr.write(err)
         sys.exit(1)
 
 
@@ -71,7 +75,11 @@ def main():
         sys.stderr.write("Command not found: {}\n".format(error.args[0]))
         sys.exit(2)
 
-    repo.edit_today(editor)
+    try:
+        repo.edit_today(editor)
+    except GitRepo.CommitError as err:
+        sys.stderr.write(err)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
