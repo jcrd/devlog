@@ -184,7 +184,8 @@ class GitRepo:
 
         if not today:
             today = date.today()
-        if self.last_commit_date() < today:
+        last_date = self.last_commit_date()
+        if last_date and last_date < today:
             return self.push(dry_run=dry_run)
 
         return self.PushStatus.INACTION
