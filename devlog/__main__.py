@@ -2,6 +2,7 @@
 
 # pylint: disable=missing-module-docstring,missing-function-docstring
 
+from subprocess import CalledProcessError
 import argparse
 import sys
 
@@ -43,6 +44,17 @@ def cmd_push(args):
         sys.exit(1)
 
 
+def cmd_pull(args):
+    repo = get_repo(args.directory)
+    try:
+        if not repo.pull():
+            sys.stderr.write("No remote; run `devlog remote <URL>`\n")
+            sys.exit(1)
+    except CalledProcessError as err:
+        sys.stderr.write(err.stderr)
+        sys.exit(err.returncode)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--directory", default=".", help="Path to dev directory")
@@ -56,6 +68,8 @@ def main():
     remotep.set_defaults(cmd=cmd_remote)
     pushp = subp.add_parser("push", help="Update remote")
     pushp.set_defaults(cmd=cmd_push)
+    pullp = subp.add_parser("pull", help="Pull from remote")
+    pullp.set_defaults(cmd=cmd_pull)
 
     args = parser.parse_args()
 

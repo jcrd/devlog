@@ -198,3 +198,18 @@ class GitRepo:
             return self.push(dry_run=dry_run)
 
         return self.PushStatus.INACTION
+
+    def pull(self):
+        """
+        Pull from remote.
+
+        :raises CalledProcessError: Raised when pull command fails
+        :return: `True` if pulling succeeds, `False` otherwise
+        """
+
+        if not self._check_remote():
+            return False
+
+        self._git("pull", "origin", GIT_BRANCH, capture_output=True, text=True)
+
+        return True
