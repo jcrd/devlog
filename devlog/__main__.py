@@ -40,7 +40,7 @@ def cmd_push(args):
             sys.stderr.write("No remote; run `devlog remote <URL>`\n")
             sys.exit(1)
     except GitRepo.PushError as err:
-        sys.stderr.write(err)
+        sys.stderr.write(str(err))
         sys.exit(1)
 
 
@@ -92,7 +92,7 @@ def main():
     try:
         repo.edit_today(editor)
     except GitRepo.CommitError as err:
-        sys.stderr.write(err)
+        sys.stderr.write(str(err))
         sys.exit(1)
 
 
