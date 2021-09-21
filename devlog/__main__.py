@@ -81,7 +81,11 @@ def main():
     repo = get_repo(args.directory)
 
     if config.auto_push:
-        repo.auto_push()
+        try:
+            repo.auto_push()
+        except GitRepo.PushError as err:
+            sys.stderr.write(str(err))
+            sys.exit(1)
 
     try:
         editor = Editor(config, cmd=args.editor)
