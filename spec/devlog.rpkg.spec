@@ -1,4 +1,4 @@
-Name: {{{ git_name name="devlog" }}}
+Name: {{{ git_cwd_name name="devlog" }}}
 # Workaround til first tagged release
 Version: 0.0.0
 # Version: %(git tag | sed -n 's/^v//p' | sort --version-sort -r | head -n1)
@@ -7,8 +7,8 @@ Summary: Log your development process
 
 License: MIT
 URL: https://github.com/jcrd/devlog
-VCS: {{{ git_vcs }}}
-Source0: {{{ git_pack }}}
+VCS: {{{ git_cwd_vcs }}}
+Source0: {{{ git_cwd_pack }}}
 
 BuildRequires:  python3-devel
 BuildRequires:  python3dist(setuptools)
@@ -19,7 +19,7 @@ BuildRequires:  python3dist(setuptools)
 Log your development process.
 
 %prep
-{{{ git_setup_macro }}}
+{{{ git_cwd_setup_macro }}}
 
 %build
 %py3_build
@@ -35,4 +35,4 @@ Log your development process.
 %{_bindir}/devlog
 
 %changelog
-{{{ git_changelog }}}
+{{{ git_cwd_changelog }}}
